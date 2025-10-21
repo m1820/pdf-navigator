@@ -1,4 +1,4 @@
-// PDF Navigator App Version: 1.2.6
+// PDF Navigator App Version: 1.2.7
 
 // Import PDF.js worker for module compatibility
 import * as pdfjsLib from 'https://unpkg.com/pdfjs-dist@5.4.296/build/pdf.min.mjs';
@@ -25,6 +25,7 @@ const zoomInBtn = document.getElementById('zoomInBtn');
 const zoomOutBtn = document.getElementById('zoomOutBtn');
 const fullScreenBtn = document.getElementById('fullScreenBtn');
 const viewer = document.getElementById('viewer');
+const sidebar = document.getElementById('sidebar');
 
 // Set version display
 versionDiv.textContent = 'Version: 1.2.7';
@@ -55,6 +56,8 @@ fullScreenBtn.addEventListener('click', () => {
         viewer.requestFullscreen().catch(err => console.error('Fullscreen error:', err));
         viewer.classList.add('fullscreen');
         fullScreenBtn.textContent = '↙ Exit';
+        sidebar.classList.add('collapsed'); // Collapse sidebar in full-screen
+        toggleSidebarBtn.textContent = '☰ Menu';
     } else {
         document.exitFullscreen();
         viewer.classList.remove('fullscreen');

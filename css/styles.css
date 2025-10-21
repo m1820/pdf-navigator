@@ -34,6 +34,8 @@ body {
     border-right: 1px solid #ddd;
     flex-shrink: 0;
     transition: transform 0.3s ease;
+    position: relative;
+    z-index: 1000;
 }
 
 /* Collapsed sidebar */
@@ -52,14 +54,25 @@ body {
     cursor: pointer;
     font-size: 1em;
     margin-bottom: 10px;
+    touch-action: manipulation;
 }
 
-/* Sidebar toggle button on mobile */
+/* Upload input */
+#upload {
+    display: block;
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    font-size: 1em;
+}
+
+/* Mobile styles */
 @media (max-width: 768px) {
     #sidebar {
         position: fixed;
         height: 100%;
-        z-index: 1000;
+        width: 80%; /* Wider for touch usability */
+        max-width: 250px;
     }
     #sidebar.collapsed {
         transform: translateX(-100%);
@@ -69,6 +82,10 @@ body {
     }
     #viewer {
         width: 100%;
+        transition: margin-left 0.3s ease;
+    }
+    #viewer.collapsed {
+        margin-left: 0;
     }
 }
 
@@ -85,6 +102,7 @@ body {
     cursor: pointer;
     display: block;
     padding: 5px 0;
+    font-size: 1em;
 }
 
 #menu a:hover {
@@ -152,6 +170,8 @@ body {
     justify-content: center;
     align-items: center;
     z-index: 100;
+    flex-wrap: wrap;
+    gap: 5px;
 }
 
 /* Control buttons */
@@ -164,7 +184,7 @@ button {
     background: #007bff;
     color: white;
     font-size: 1em;
-    touch-action: manipulation; /* Improve touch responsiveness */
+    touch-action: manipulation;
 }
 
 /* Mobile-friendly button sizes */
@@ -172,22 +192,13 @@ button {
     button {
         padding: 10px 12px;
         font-size: 0.9em;
-    }
-    #pageControls {
-        flex-wrap: wrap;
-        gap: 5px;
+        min-width: 40px; /* Ensure touch-friendly size */
     }
 }
 
 #pageInfo {
     margin: 0 10px;
     font-weight: bold;
-}
-
-#upload {
-    margin-bottom: 10px;
-    display: block;
-    width: 100%;
 }
 
 #no-pdf, #loading {
