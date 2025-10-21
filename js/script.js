@@ -1,4 +1,4 @@
-// PDF Navigator App Version: 1.2.7
+// PDF Navigator App Version: 1.2.8
 
 // Import PDF.js worker for module compatibility
 import * as pdfjsLib from 'https://unpkg.com/pdfjs-dist@5.4.296/build/pdf.min.mjs';
@@ -21,6 +21,7 @@ const nextBtn = document.getElementById('nextBtn');
 const pageInfo = document.getElementById('pageInfo');
 const versionDiv = document.getElementById('version');
 const toggleSidebarBtn = document.getElementById('toggleSidebar');
+const openSidebarBtn = document.getElementById('openSidebarBtn');
 const zoomInBtn = document.getElementById('zoomInBtn');
 const zoomOutBtn = document.getElementById('zoomOutBtn');
 const fullScreenBtn = document.getElementById('fullScreenBtn');
@@ -28,12 +29,16 @@ const viewer = document.getElementById('viewer');
 const sidebar = document.getElementById('sidebar');
 
 // Set version display
-versionDiv.textContent = 'Version: 1.2.7';
+versionDiv.textContent = 'Version: 1.2.8';
 
-// Handle sidebar toggle
+// Handle sidebar toggle (inside sidebar)
 toggleSidebarBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('collapsed');
-    toggleSidebarBtn.textContent = sidebar.classList.contains('collapsed') ? '☰ Menu' : '✕ Close';
+    sidebar.classList.add('collapsed');
+});
+
+// Handle sidebar open (floating button)
+openSidebarBtn.addEventListener('click', () => {
+    sidebar.classList.remove('collapsed');
 });
 
 // Handle zoom in
@@ -56,8 +61,7 @@ fullScreenBtn.addEventListener('click', () => {
         viewer.requestFullscreen().catch(err => console.error('Fullscreen error:', err));
         viewer.classList.add('fullscreen');
         fullScreenBtn.textContent = '↙ Exit';
-        sidebar.classList.add('collapsed'); // Collapse sidebar in full-screen
-        toggleSidebarBtn.textContent = '☰ Menu';
+        sidebar.classList.add('collapsed');
     } else {
         document.exitFullscreen();
         viewer.classList.remove('fullscreen');
@@ -102,7 +106,6 @@ uploadInput.addEventListener('change', async (event) => {
         // Collapse sidebar on mobile after loading
         if (window.innerWidth <= 768) {
             sidebar.classList.add('collapsed');
-            toggleSidebarBtn.textContent = '☰ Menu';
         }
     } catch (error) {
         console.error('Error loading PDF:', error);
@@ -225,7 +228,6 @@ async function displayTOC() {
                 navigateToDest(item.dest);
                 if (window.innerWidth <= 768) {
                     sidebar.classList.add('collapsed');
-                    toggleSidebarBtn.textContent = '☰ Menu';
                 }
             });
             li.appendChild(a);
@@ -242,7 +244,6 @@ async function displayTOC() {
                         navigateToDest(subItem.dest);
                         if (window.innerWidth <= 768) {
                             sidebar.classList.add('collapsed');
-                            toggleSidebarBtn.textContent = '☰ Menu';
                         }
                     });
                     subLi.appendChild(subA);
@@ -317,7 +318,6 @@ async function detectTOCWithOCR() {
                         updatePageControls();
                         if (window.innerWidth <= 768) {
                             sidebar.classList.add('collapsed');
-                            toggleSidebarBtn.textContent = '☰ Menu';
                         }
                     } else {
                         console.warn('Page not found for TOC item:', item);

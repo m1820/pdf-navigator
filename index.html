@@ -22,8 +22,8 @@
     <div id="version"></div>
     <!-- Sidebar container for PDF upload and TOC -->
     <div id="sidebar">
-        <!-- Sidebar toggle button -->
-        <button id="toggleSidebar">☰ Menu</button>
+        <!-- Sidebar toggle button (inside sidebar) -->
+        <button id="toggleSidebar">✕ Close</button>
         <!-- File input for selecting PDF files -->
         <input type="file" id="upload" accept=".pdf">
         <!-- Menu area for TOC or placeholder -->
@@ -34,6 +34,8 @@
     </div>
     <!-- Main viewer area for PDF content -->
     <div id="viewer">
+        <!-- Floating toggle button for reopening sidebar -->
+        <button id="openSidebarBtn" class="floating-toggle">☰</button>
         <!-- Container for rendered PDF pages -->
         <div id="documentContainer"></div>
         <!-- Navigation and control panel -->
