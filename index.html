@@ -1,5 +1,5 @@
 <!-- PDF Navigator App HTML -->
-<!-- Defines the structure for a web-based PDF viewer with a sidebar for TOC navigation and a main viewer area -->
+<!-- Defines the structure for a web-based PDF viewer with a collapsible sidebar and enhanced controls -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -12,39 +12,41 @@
     <title>PDF Navigator App</title>
     <!-- Load PDF.js library (version 5.4.296) from CDN for PDF rendering -->
     <script type="module" src="https://unpkg.com/pdfjs-dist@5.4.296/build/pdf.min.mjs"></script>
-    <!-- Load Tesseract.js (version 5.1.0) from CDN, included for potential future OCR use -->
+    <!-- Load Tesseract.js (version 5.1.0) from CDN for OCR -->
     <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
-    <!-- Link to custom CSS for styling the app -->
+    <!-- Link to custom CSS for styling -->
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <!-- Version display in bottom-left corner, populated by JavaScript -->
+    <!-- Version display in bottom-left corner -->
     <div id="version"></div>
-    <!-- Sidebar container for PDF upload and table of contents (TOC) -->
-    <div id="sidebar">
-        <!-- File input for selecting PDF files, accepts only .pdf files -->
+    <!-- Sidebar container for PDF upload and TOC -->
+    <div id="sidebar" class="collapsed">
+        <!-- Sidebar toggle button -->
+        <button id="toggleSidebar">☰ Menu</button>
+        <!-- File input for selecting PDF files -->
         <input type="file" id="upload" accept=".pdf">
-        <!-- Menu area for displaying TOC or placeholder text -->
+        <!-- Menu area for TOC or placeholder -->
         <div id="menu">
-            <!-- Placeholder text shown before a PDF is uploaded -->
+            <!-- Placeholder text before PDF upload -->
             <div id="no-pdf">Upload a PDF to begin</div>
         </div>
     </div>
-    <!-- Main viewer area for displaying PDF content -->
+    <!-- Main viewer area for PDF content -->
     <div id="viewer">
-        <!-- Container for rendered PDF pages (canvas-based) -->
+        <!-- Container for rendered PDF pages -->
         <div id="documentContainer"></div>
-        <!-- Navigation controls for paging through the PDF -->
+        <!-- Navigation and control panel -->
         <div id="pageControls">
-            <!-- Button to navigate to the previous page, disabled by default -->
             <button id="prevBtn" disabled>Previous</button>
-            <!-- Display current page and total pages, updated by JavaScript -->
             <span id="pageInfo">Page 0 of 0</span>
-            <!-- Button to navigate to the next page, disabled by default -->
             <button id="nextBtn" disabled>Next</button>
+            <button id="zoomInBtn">+</button>
+            <button id="zoomOutBtn">-</button>
+            <button id="fullScreenBtn">⤢</button>
         </div>
     </div>
-    <!-- Load main JavaScript logic for PDF handling and navigation -->
+    <!-- Load main JavaScript logic -->
     <script type="module" src="js/script.js"></script>
 </body>
 </html>

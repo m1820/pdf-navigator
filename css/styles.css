@@ -1,141 +1,201 @@
 /* PDF Navigator App CSS */
-/* Styles the layout, sidebar, viewer, and navigation controls for a web-based PDF viewer */
+/* Styles the layout, collapsible sidebar, viewer, and mobile-friendly controls */
 
-/* Set global styles for the entire page */
+/* Global styles */
 body {
-    font-family: Arial, sans-serif; /* Use Arial or fallback sans-serif font for readability */
-    margin: 0; /* Remove default margins */
-    padding: 0; /* Remove default padding */
-    display: flex; /* Use flexbox for sidebar and viewer layout */
-    height: 100vh; /* Full viewport height */
-    overflow: hidden; /* Prevent scrolling on body */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
 }
 
-/* Style the version number display in bottom-left corner */
+/* Version number display */
 #version {
-    position: fixed; /* Fix position relative to viewport */
-    bottom: 10px; /* 10px from bottom edge */
-    left: 10px; /* 10px from left edge */
-    font-size: 0.8em; /* Smaller font size for subtlety */
-    color: #666; /* Gray color for low contrast */
-    font-weight: bold; /* Bold text for emphasis */
-    z-index: 1000; /* Ensure it appears above other elements */
-    background: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
-    padding: 5px 10px; /* Padding for readability */
-    border-radius: 3px; /* Rounded corners for aesthetics */
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    font-size: 0.8em;
+    color: #666;
+    font-weight: bold;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 5px 10px;
+    border-radius: 3px;
 }
 
-/* Style the sidebar containing the file upload and TOC menu */
+/* Sidebar styles */
 #sidebar {
-    width: 250px; /* Fixed width for sidebar */
-    background-color: #f4f4f4; /* Light gray background */
-    padding: 10px; /* Internal padding */
-    overflow-y: auto; /* Enable vertical scrolling for long TOCs */
-    border-right: 1px solid #ddd; /* Subtle right border */
-    flex-shrink: 0; /* Prevent sidebar from shrinking in flex layout */
+    width: 250px;
+    background-color: #f4f4f4;
+    padding: 10px;
+    overflow-y: auto;
+    border-right: 1px solid #ddd;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
 }
 
-/* Style the unordered list inside the menu for TOC items */
+/* Collapsed sidebar */
+#sidebar.collapsed {
+    transform: translateX(-100%);
+}
+
+/* Sidebar toggle button */
+#toggleSidebar {
+    width: 100%;
+    padding: 10px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-bottom: 10px;
+}
+
+/* Sidebar toggle button on mobile */
+@media (max-width: 768px) {
+    #sidebar {
+        position: fixed;
+        height: 100%;
+        z-index: 1000;
+    }
+    #sidebar.collapsed {
+        transform: translateX(-100%);
+    }
+    #sidebar:not(.collapsed) {
+        transform: translateX(0);
+    }
+    #viewer {
+        width: 100%;
+    }
+}
+
+/* Menu styles */
 #menu ul {
-    list-style-type: none; /* Remove default bullet points */
-    padding-left: 20px; /* Indent for hierarchy */
-    margin: 0; /* Remove default margins */
+    list-style-type: none;
+    padding-left: 20px;
+    margin: 0;
 }
 
-/* Style links in the TOC menu */
 #menu a {
-    color: #007bff; /* Blue color for links */
-    text-decoration: none; /* Remove default underline */
-    cursor: pointer; /* Pointer cursor for interactivity */
-    display: block; /* Full-width clickable area */
-    padding: 5px 0; /* Vertical padding for spacing */
+    color: #007bff;
+    text-decoration: none;
+    cursor: pointer;
+    display: block;
+    padding: 5px 0;
 }
 
-/* Add underline on hover for TOC links */
 #menu a:hover {
-    text-decoration: underline; /* Underline on hover for feedback */
+    text-decoration: underline;
 }
 
-/* Style the main viewer area for PDF content */
+/* Viewer styles */
 #viewer {
-    flex: 1; /* Take remaining space in flex layout */
-    background-color: #fff; /* White background */
-    overflow-y: auto; /* Enable vertical scrolling for content */
-    padding: 10px; /* Internal padding */
-    display: flex; /* Flexbox for centering content */
-    flex-direction: column; /* Stack children vertically */
-    align-items: center; /* Center content horizontally */
+    flex: 1;
+    background-color: #fff;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-/* Style the container for rendered PDF pages */
+/* Full-screen mode */
+#viewer.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2000;
+    background: #fff;
+    padding: 0;
+}
+
+/* Document container */
 #documentContainer {
-    width: 100%; /* Full width of viewer */
-    max-width: 1200px; /* Cap width for large screens */
+    width: 100%;
+    max-width: 1200px;
 }
 
-/* Style individual page containers (canvas-based) */
+/* Page container */
 .page-div {
-    margin-bottom: 20px; /* Space between pages */
-    border-bottom: 1px solid #eee; /* Subtle separator line */
-    padding-bottom: 10px; /* Padding below content */
-    width: 100%; /* Full width */
-    text-align: center; /* Center content (e.g., canvas) */
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    width: 100%;
+    text-align: center;
 }
 
-/* Style page number headings */
 .page-div h2 {
-    color: #007bff; /* Blue color for headings */
-    margin: 10px 0; /* Vertical spacing */
+    color: #007bff;
+    margin: 10px 0;
 }
 
-/* Style canvas elements for PDF pages */
 .page-div canvas {
-    max-width: 100%; /* Ensure canvas fits container */
-    height: auto; /* Maintain aspect ratio */
-    border: 1px solid #ddd; /* Subtle border for visibility */
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
 }
 
-/* Style the sticky navigation controls at the bottom */
+/* Page controls */
 #pageControls {
-    position: sticky; /* Stick to bottom of viewer */
-    bottom: 10px; /* 10px from bottom */
-    background: white; /* White background */
-    padding: 10px; /* Internal padding */
-    border: 1px solid #ddd; /* Subtle border */
-    border-radius: 5px; /* Rounded corners */
-    display: flex; /* Flexbox for button alignment */
-    justify-content: center; /* Center buttons */
-    align-items: center; /* Vertically align buttons */
-    z-index: 100; /* Ensure visibility above content */
+    position: sticky;
+    bottom: 10px;
+    background: white;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
 }
 
-/* Style the page info text (e.g., "Page 1 of 10") */
-#pageInfo {
-    margin: 0 10px; /* Horizontal spacing */
-    font-weight: bold; /* Bold for emphasis */
-}
-
-/* Style all buttons (Previous, Next) */
+/* Control buttons */
 button {
-    padding: 5px 15px; /* Padding for clickable area */
-    cursor: pointer; /* Pointer cursor for interactivity */
+    padding: 8px 15px;
+    margin: 0 5px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background: #007bff;
+    color: white;
+    font-size: 1em;
+    touch-action: manipulation; /* Improve touch responsiveness */
 }
 
-/* Style the file upload input */
+/* Mobile-friendly button sizes */
+@media (max-width: 768px) {
+    button {
+        padding: 10px 12px;
+        font-size: 0.9em;
+    }
+    #pageControls {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+}
+
+#pageInfo {
+    margin: 0 10px;
+    font-weight: bold;
+}
+
 #upload {
-    margin-bottom: 10px; /* Space below input */
-    display: block; /* Full-width input */
-    width: 100%; /* Ensure full width */
+    margin-bottom: 10px;
+    display: block;
+    width: 100%;
 }
 
-/* Style placeholder and loading text in menu */
 #no-pdf, #loading {
-    text-align: center; /* Center text */
-    color: #666; /* Gray color for low contrast */
-    margin: 10px 0; /* Vertical spacing */
+    text-align: center;
+    color: #666;
+    margin: 10px 0;
 }
 
-/* Style loading text specifically */
 #loading {
-    color: #007bff; /* Blue color for visibility */
+    color: #007bff;
 }
