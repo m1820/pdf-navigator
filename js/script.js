@@ -1,4 +1,4 @@
-// PDF Navigator App Version: 1.2.4
+// PDF Navigator App Version: 1.2.5
 
 // Import PDF.js worker for module compatibility
 import * as pdfjsLib from 'https://unpkg.com/pdfjs-dist@5.4.296/build/pdf.min.mjs';
@@ -10,6 +10,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@5.4.296/b
 let pdfDoc = null; // Holds the loaded PDF document
 let currentPage = 1; // Tracks the current page
 let scale = 1.0; // Default scale for rendering
+let pageNumberMap = new Map(); // Maps page numbers to page indices
 
 // DOM elements
 const uploadInput = document.getElementById('upload');
@@ -21,7 +22,7 @@ const pageInfo = document.getElementById('pageInfo');
 const versionDiv = document.getElementById('version');
 
 // Set version display
-versionDiv.textContent = 'Version: 1.2.4';
+versionDiv.textContent = 'Version: 1.2.5';
 
 // Handle file upload
 uploadInput.addEventListener('change', async (event) => {
@@ -42,9 +43,10 @@ uploadInput.addEventListener('change', async (event) => {
         // Clear previous content
         documentContainer.innerHTML = '';
         menuDiv.innerHTML = '';
+        pageNumberMap.clear();
 
-        // Render all pages
-        await renderAllPages();
+        // Extract page numbers and render pages
+        await extractPageNumbersAndRender();
 
         // Try to extract and display embedded TOC
         const tocExtracted = await displayTOC();
@@ -61,8 +63,8 @@ uploadInput.addEventListener('change', async (event) => {
     }
 });
 
-// Render all pages in the document
-async function renderAllPages() {
+// Extract page numbers from each page and render all pages
+async function extractPageNumbersAndRender() {
     const numPages = pdfDoc.numPages;
     for (let pageNum = 1; pageNum <= numPages; pageNum++) {
         const page = await pdfDoc.getPage(pageNum);
@@ -92,6 +94,24 @@ async function renderAllPages() {
         }).promise;
 
         documentContainer.appendChild(pageDiv);
+
+        // Extract text for page number detection
+        const textContent = await page.getTextContent();
+        const text = textContent.items.map(item => item.str).join(' ').trim();
+        // Look for a number at the bottom (last 10% of page height)
+        const bottomText = textContent.items
+            .filter(item => item.transform[5] < viewport.height * 0.1)
+            .map(item => item.str)
+            .join(' ')
+            .trim();
+        // Extract the last number as the page number
+        const pageNumberMatch = bottomText.match(/\d+$/);
+        if (pageNumberMatch) {
+            const pageNumber = parseInt(pageNumberMatch[0], 10);
+            if (pageNumber > 0 && pageNumber <= numPages) {
+                pageNumberMap.set(pageNumber, pageNum);
+            }
+        }
     }
 }
 
@@ -168,10 +188,11 @@ async function detectTOCWithOCR() {
                 logger: (m) => console.log(m) // Optional: log OCR progress
             });
 
-            // Simple TOC detection: look for lines with text followed by a number
+            // Detect TOC: lines with text followed by a number (e.g., "Title 5" or "Title .... 5")
             const lines = text.split('\n').map(line => line.trim()).filter(line => line);
             lines.forEach(line => {
-                const match = line.match(/^(.+?)\s+(\d+)$/); // E.g., "Section Title 5"
+                // Match patterns like "Title 5" or "Title .... 5"
+                const match = line.match(/^(.+?)\s*(?:\.{2,}|\s+)\s*(\d+)$/);
                 if (match) {
                     const title = match[1].trim();
                     const page = parseInt(match[2], 10);
@@ -183,6 +204,9 @@ async function detectTOCWithOCR() {
 
             // Clean up canvas
             canvas.remove();
+
+            // Stop scanning if TOC items are found
+            if (tocItems.length > 0) break;
         }
 
         if (tocItems.length > 0) {
@@ -195,8 +219,10 @@ async function detectTOCWithOCR() {
                 a.href = '#';
                 a.addEventListener('click', (e) => {
                     e.preventDefault();
-                    currentPage = item.page;
-                    const pageDiv = document.getElementById(`page-${currentPage}`);
+                    // Use pageNumberMap to find the actual page index
+                    const actualPageNum = pageNumberMap.get(item.page) || item.page;
+                    currentPage = actualPageNum;
+                    const pageDiv = document.getElementById(`page-${actualPageNum}`);
                     if (pageDiv) {
                         pageDiv.scrollIntoView({ behavior: 'smooth' });
                         updatePageControls();
