@@ -1,121 +1,142 @@
+/* PDF Navigator App CSS */
+/* Version 1.2.1 */
+/* Styles the layout, sidebar, viewer, and navigation controls for a web-based PDF viewer */
+
+/* Set global styles for the entire page */
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    height: 100vh;
-    overflow: hidden;
+    font-family: Arial, sans-serif; /* Use Arial or fallback sans-serif font for readability */
+    margin: 0; /* Remove default margins */
+    padding: 0; /* Remove default padding */
+    display: flex; /* Use flexbox for sidebar and viewer layout */
+    height: 100vh; /* Full viewport height */
+    overflow: hidden; /* Prevent scrolling on body */
 }
 
+/* Style the version number display in bottom-left corner */
 #version {
-    position: fixed;
-    bottom: 10px;
-    left: 10px;
-    font-size: 0.8em;
-    color: #666;
-    font-weight: bold;
-    z-index: 1000;
-    background: rgba(255, 255, 255, 0.8);
-    padding: 5px 10px;
-    border-radius: 3px;
+    position: fixed; /* Fix position relative to viewport */
+    bottom: 10px; /* 10px from bottom edge */
+    left: 10px; /* 10px from left edge */
+    font-size: 0.8em; /* Smaller font size for subtlety */
+    color: #666; /* Gray color for low contrast */
+    font-weight: bold; /* Bold text for emphasis */
+    z-index: 1000; /* Ensure it appears above other elements */
+    background: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
+    padding: 5px 10px; /* Padding for readability */
+    border-radius: 3px; /* Rounded corners for aesthetics */
 }
 
+/* Style the sidebar containing the file upload and TOC menu */
 #sidebar {
-    width: 250px;
-    background-color: #f4f4f4;
-    padding: 10px;
-    overflow-y: auto;
-    border-right: 1px solid #ddd;
-    flex-shrink: 0;
+    width: 250px; /* Fixed width for sidebar */
+    background-color: #f4f4f4; /* Light gray background */
+    padding: 10px; /* Internal padding */
+    overflow-y: auto; /* Enable vertical scrolling for long TOCs */
+    border-right: 1px solid #ddd; /* Subtle right border */
+    flex-shrink: 0; /* Prevent sidebar from shrinking in flex layout */
 }
 
+/* Style the unordered list inside the menu for TOC items */
 #menu ul {
-    list-style-type: none;
-    padding-left: 20px;
-    margin: 0;
+    list-style-type: none; /* Remove default bullet points */
+    padding-left: 20px; /* Indent for hierarchy */
+    margin: 0; /* Remove default margins */
 }
 
+/* Style links in the TOC menu */
 #menu a {
-    color: #007bff;
-    text-decoration: none;
-    cursor: pointer;
-    display: block;
-    padding: 5px 0;
+    color: #007bff; /* Blue color for links */
+    text-decoration: none; /* Remove default underline */
+    cursor: pointer; /* Pointer cursor for interactivity */
+    display: block; /* Full-width clickable area */
+    padding: 5px 0; /* Vertical padding for spacing */
 }
 
+/* Add underline on hover for TOC links */
 #menu a:hover {
-    text-decoration: underline;
+    text-decoration: underline; /* Underline on hover for feedback */
 }
 
+/* Style the main viewer area for PDF content */
 #viewer {
-    flex: 1;
-    background-color: #fff;
-    overflow-y: auto;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    flex: 1; /* Take remaining space in flex layout */
+    background-color: #fff; /* White background */
+    overflow-y: auto; /* Enable vertical scrolling for content */
+    padding: 10px; /* Internal padding */
+    display: flex; /* Flexbox for centering content */
+    flex-direction: column; /* Stack children vertically */
+    align-items: center; /* Center content horizontally */
 }
 
+/* Style the container for rendered PDF pages */
 #documentContainer {
-    width: 100%;
-    max-width: 1200px;
+    width: 100%; /* Full width of viewer */
+    max-width: 1200px; /* Cap width for large screens */
 }
 
+/* Style individual page containers (HTML or canvas) */
 .page-div {
-    margin-bottom: 20px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
-    width: 100%;
-    text-align: center;
+    margin-bottom: 20px; /* Space between pages */
+    border-bottom: 1px solid #eee; /* Subtle separator line */
+    padding-bottom: 10px; /* Padding below content */
+    width: 100%; /* Full width */
+    text-align: center; /* Center content (e.g., canvas, text) */
 }
 
+/* Style page number headings */
 .page-div h2 {
-    color: #007bff;
-    margin: 10px 0;
+    color: #007bff; /* Blue color for headings */
+    margin: 10px 0; /* Vertical spacing */
 }
 
+/* Style canvas elements for image-based PDFs */
 .page-div canvas {
-    max-width: 100%;
-    height: auto;
-    border: 1px solid #ddd;
+    max-width: 100%; /* Ensure canvas fits container */
+    height: auto; /* Maintain aspect ratio */
+    border: 1px solid #ddd; /* Subtle border for visibility */
 }
 
+/* Style the sticky navigation controls at the bottom */
 #pageControls {
-    position: sticky;
-    bottom: 10px;
-    background: white;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 100;
+    position: sticky; /* Stick to bottom of viewer */
+    bottom: 10px; /* 10px from bottom */
+    background: white; /* White background */
+    padding: 10px; /* Internal padding */
+    border: 1px solid #ddd; /* Subtle border */
+    border-radius: 5px; /* Rounded corners */
+    display: flex; /* Flexbox for button alignment */
+    justify-content: center; /* Center buttons */
+    align-items: center; /* Vertically align buttons */
+    z-index: 100; /* Ensure visibility above content */
 }
 
+/* Style the page info text (e.g., "Page 1 of 10") */
 #pageInfo {
-    margin: 0 10px;
-    font-weight: bold;
+    margin: 0 10px; /* Horizontal spacing */
+    font-weight: bold; /* Bold for emphasis */
 }
 
+/* Style all buttons (Previous, Next) */
 button {
-    padding: 5px 15px;
-    cursor: pointer;
+    padding: 5px 15px; /* Padding for clickable area */
+    cursor: pointer; /* Pointer cursor for interactivity */
 }
 
+/* Style the file upload input */
 #upload {
-    margin-bottom: 10px;
-    display: block;
-    width: 100%;
+    margin-bottom: 10px; /* Space below input */
+    display: block; /* Full-width input */
+    width: 100%; /* Ensure full width */
 }
 
+/* Style placeholder and loading text in menu */
 #no-pdf, #loading {
-    text-align: center;
-    color: #666;
-    margin: 10px 0;
+    text-align: center; /* Center text */
+    color: #666; /* Gray color for low contrast */
+    margin: 10px 0; /* Vertical spacing */
 }
 
+/* Style loading text specifically */
 #loading {
-    color: #007bff;
+    color: #007bff; /* Blue color for visibility */
 }

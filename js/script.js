@@ -1,32 +1,44 @@
-// Fallback to local PDF.js if CDN fails
+// PDF Navigator App JavaScript
+// Version 1.2.1
+// Handles PDF loading, rendering (HTML or canvas), navigation, and TOC generation
+
+// Initialize PDF.js with CDN fallback to local files
 let pdfjsLib;
 try {
+    // Attempt to load PDF.js from CDN
     pdfjsLib = await import('https://unpkg.com/pdfjs-dist@5.4.296/build/pdf.min.mjs');
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@5.4.296/build/pdf.worker.min.mjs';
 } catch (e) {
+    // Fallback to local PDF.js files if CDN fails
     console.warn('CDN failed, using local PDF.js');
     pdfjsLib = await import('/js/pdf.min.mjs');
     pdfjsLib.GlobalWorkerOptions.workerSrc = '/js/pdf.worker.min.mjs';
 }
 
-const APP_VERSION = '1.2.0'; // Version for display
+// Application version for display in bottom-left corner
+const APP_VERSION = '1.2.1';
 
-let pdfDoc = null;
-let currentPage = 1;
-const scale = 2.0;
-let fullHtmlMode = false;
-let htmlMode = false;
+// Global variables for PDF document and state
+let pdfDoc = null; // Holds the loaded PDF document
+let currentPage = 1; // Tracks the current page being viewed
+const scale = 2.0; // Canvas rendering scale for image-based PDFs
+let fullHtmlMode = false; // True if rendering as canvas (image-based PDFs)
+let htmlMode = false; // True if rendering as HTML (text-selectable PDFs)
 
-const upload = document.getElementById('upload');
-const menuDiv = document.getElementById('menu');
-const viewer = document.getElementById('viewer');
-const documentContainer = document.getElementById('documentContainer');
-const versionDiv = document.getElementById('version');
+// DOM elements for interaction
+const upload = document.getElementById('upload'); // File input for PDF upload
+const menuDiv = document.getElementById('menu'); // Sidebar menu for TOC
+const viewer = document.getElementById('viewer'); // Main viewer area
+const documentContainer = document.getElementById('documentContainer'); // Container for PDF pages
+const versionDiv = document.getElementById('version'); // Version display element
 
+// Display version number in bottom-left corner
 if (versionDiv) versionDiv.textContent = `Version ${APP_VERSION}`;
 
+// Event listener for PDF file selection
 upload.addEventListener('change', handleFileSelect);
 
+// Handle PDF file selection and initiate loading
 async function handleFileSelect(event) {
     const file = event.target.files[0];
     if (!file || !file.type.includes('pdf')) {
@@ -39,11 +51,13 @@ async function handleFileSelect(event) {
         return;
     }
 
+    // Show loading indicator and clear viewer
     menuDiv.innerHTML = '<div id="loading">Loading PDF...</div>';
     documentContainer.innerHTML = '';
 
     const arrayBuffer = await file.arrayBuffer();
     try {
+        // Log loading start and track progress
         console.log('Starting PDF load for:', file.name, 'size:', file.size);
         const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
         loadingTask.onProgress = (progress) => {
@@ -51,12 +65,13 @@ async function handleFileSelect(event) {
             menuDiv.innerHTML = `<div id="loading">Loading PDF... ${percent}%</div>`;
             console.log(`Loading progress: ${percent}%`);
         };
+        // Timeout after 60 seconds to prevent hangs
         const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Loading timeout after 60s')), 60000));
         pdfDoc = await Promise.race([loadingTask.promise, timeoutPromise]);
         console.log('PDF loaded:', pdfDoc.numPages, 'pages');
 
         currentPage = 1;
-        // Reset controls
+        // Reset navigation controls
         const controls = document.getElementById('pageControls');
         controls.innerHTML = '<button id="prevBtn" disabled>Previous</button><span id="pageInfo">Page 0 of 0</span><button id="nextBtn" disabled>Next</button>';
         pageInfo = document.getElementById('pageInfo');
@@ -66,20 +81,24 @@ async function handleFileSelect(event) {
         nextBtn.addEventListener('click', () => goToPage(currentPage + 1));
         updatePageControls();
 
+        // Convert PDF to HTML or canvas and build menu
         await convertPdfToHtml();
         await buildMenu(file.name);
     } catch (error) {
+        // Handle loading errors (e.g., corrupt PDF, network issues)
         console.error('PDF load error:', error);
         alert(`Error: ${error.message}. Check console (F12). Try re-downloading the PDF or using Chrome incognito.`);
         menuDiv.innerHTML = '<p>Error loading.</p>';
     }
 }
 
+// Convert PDF to HTML (text-selectable) or canvas (image-based)
 async function convertPdfToHtml() {
     const container = document.getElementById('documentContainer');
     container.innerHTML = '<div id="loading">Converting PDF to HTML...</div>';
 
     try {
+        // Check if PDF is text-selectable by sampling page 1
         const samplePage = await pdfDoc.getPage(1);
         const textContent = await samplePage.getTextContent();
         if (textContent.items.length > 10) {
@@ -129,6 +148,7 @@ async function convertPdfToHtml() {
     }
 }
 
+// Navigate to a specific page
 function goToPage(pageNum) {
     if (pageNum < 1 || pageNum > pdfDoc.numPages) return;
     currentPage = pageNum;
@@ -140,6 +160,7 @@ function goToPage(pageNum) {
     updatePageControls();
 }
 
+// Update navigation controls (Previous/Next buttons and page info)
 function updatePageControls() {
     if (pdfDoc) {
         pageInfo.textContent = `Page ${currentPage} of ${pdfDoc.numPages}`;
@@ -148,6 +169,7 @@ function updatePageControls() {
     }
 }
 
+// Build sidebar menu from PDF outline or generated TOC
 async function buildMenu(filename) {
     let outline = await pdfDoc.getOutline();
     if (outline && outline.length > 0) {
@@ -166,6 +188,7 @@ async function buildMenu(filename) {
     await buildGeneralTocMenu();
 }
 
+// Generate TOC from page 4 if no outline exists
 async function buildGeneralTocMenu() {
     if (!pdfDoc || pdfDoc.numPages < 5) {
         menuDiv.innerHTML = '<p>PDF too short for TOC.</p>';
@@ -192,6 +215,7 @@ async function buildGeneralTocMenu() {
     }
 }
 
+// Extract text lines from a page for TOC parsing
 function extractLinesFromText(textContent) {
     if (textContent.items.length === 0) return [];
     const items = textContent.items.sort((a, b) => b.transform[5] - a.transform[5]);
@@ -213,6 +237,7 @@ function extractLinesFromText(textContent) {
     return lines;
 }
 
+// Parse TOC lines into title-page pairs
 function parseTocLines(lines) {
     const entries = [];
     const pageRegex = /\s*(\d{1,3})\s*$/;
@@ -233,6 +258,7 @@ function parseTocLines(lines) {
     return entries;
 }
 
+// Build hierarchical TOC structure
 function buildTocStructure(entries) {
     if (entries.length === 0) return [];
     const structure = [];
@@ -250,6 +276,7 @@ function buildTocStructure(entries) {
     return structure;
 }
 
+// Render TOC menu in sidebar
 function renderMenu(structure) {
     menuDiv.innerHTML = '';
     const ul = document.createElement('ul');
@@ -286,6 +313,7 @@ function renderMenu(structure) {
     menuDiv.appendChild(ul);
 }
 
+// Recursively build menu from PDF outline
 async function buildOutlineRecursive(parentUl, items) {
     for (const item of items) {
         const li = document.createElement('li');

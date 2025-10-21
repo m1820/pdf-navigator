@@ -1,29 +1,50 @@
+<!-- PDF Navigator App HTML -->
+<!-- Defines the structure for a web-based PDF viewer with a sidebar for TOC navigation and a main viewer area -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Set character encoding to UTF-8 for universal compatibility -->
     <meta charset="UTF-8">
+    <!-- Ensure responsive design for mobile and desktop devices -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Page title displayed in browser tab -->
     <title>PDF Navigator App</title>
+    <!-- Load PDF.js library (version 5.4.296) from CDN for PDF rendering -->
     <script type="module" src="https://unpkg.com/pdfjs-dist@5.4.296/build/pdf.min.mjs"></script>
+    <!-- Load Tesseract.js (version 5.1.0) from CDN for OCR in image-based PDFs -->
     <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
+    <!-- Link to custom CSS for styling the app -->
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+    <!-- Version display in bottom-left corner, populated by JavaScript -->
     <div id="version"></div>
+    <!-- Sidebar container for PDF upload and table of contents (TOC) -->
     <div id="sidebar">
+        <!-- File input for selecting PDF files, accepts only .pdf files -->
         <input type="file" id="upload" accept=".pdf">
+        <!-- Menu area for displaying TOC or placeholder text -->
         <div id="menu">
+            <!-- Placeholder text shown before a PDF is uploaded -->
             <div id="no-pdf">Upload a PDF to begin</div>
         </div>
     </div>
+    <!-- Main viewer area for displaying PDF content -->
     <div id="viewer">
+        <!-- Container for rendered PDF pages (HTML or canvas) -->
         <div id="documentContainer"></div>
+        <!-- Navigation controls for paging through the PDF -->
         <div id="pageControls">
+            <!-- Button to navigate to the previous page, disabled by default -->
             <button id="prevBtn" disabled>Previous</button>
+            <!-- Display current page and total pages, updated by JavaScript -->
             <span id="pageInfo">Page 0 of 0</span>
+            <!-- Button to navigate to the next page, disabled by default -->
             <button id="nextBtn" disabled>Next</button>
         </div>
     </div>
+    <!-- Load main JavaScript logic for PDF handling and navigation -->
     <script type="module" src="js/script.js"></script>
 </body>
 </html>
