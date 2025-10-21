@@ -1,5 +1,4 @@
 /* PDF Navigator App CSS */
-/* Version 1.2.1 */
 /* Styles the layout, sidebar, viewer, and navigation controls for a web-based PDF viewer */
 
 /* Set global styles for the entire page */
@@ -74,13 +73,13 @@ body {
     max-width: 1200px; /* Cap width for large screens */
 }
 
-/* Style individual page containers (HTML or canvas) */
+/* Style individual page containers (canvas-based) */
 .page-div {
     margin-bottom: 20px; /* Space between pages */
     border-bottom: 1px solid #eee; /* Subtle separator line */
     padding-bottom: 10px; /* Padding below content */
     width: 100%; /* Full width */
-    text-align: center; /* Center content (e.g., canvas, text) */
+    text-align: center; /* Center content (e.g., canvas) */
 }
 
 /* Style page number headings */
@@ -89,7 +88,7 @@ body {
     margin: 10px 0; /* Vertical spacing */
 }
 
-/* Style canvas elements for image-based PDFs */
+/* Style canvas elements for PDF pages */
 .page-div canvas {
     max-width: 100%; /* Ensure canvas fits container */
     height: auto; /* Maintain aspect ratio */

@@ -12,7 +12,7 @@
     <title>PDF Navigator App</title>
     <!-- Load PDF.js library (version 5.4.296) from CDN for PDF rendering -->
     <script type="module" src="https://unpkg.com/pdfjs-dist@5.4.296/build/pdf.min.mjs"></script>
-    <!-- Load Tesseract.js (version 5.1.0) from CDN for OCR in image-based PDFs -->
+    <!-- Load Tesseract.js (version 5.1.0) from CDN, included for potential future OCR use -->
     <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
     <!-- Link to custom CSS for styling the app -->
     <link rel="stylesheet" href="css/styles.css">
@@ -32,7 +32,7 @@
     </div>
     <!-- Main viewer area for displaying PDF content -->
     <div id="viewer">
-        <!-- Container for rendered PDF pages (HTML or canvas) -->
+        <!-- Container for rendered PDF pages (canvas-based) -->
         <div id="documentContainer"></div>
         <!-- Navigation controls for paging through the PDF -->
         <div id="pageControls">

@@ -1,6 +1,6 @@
 // PDF Navigator App JavaScript
-// Version 1.2.1
-// Handles PDF loading, rendering (HTML or canvas), navigation, and TOC generation
+// Version 1.2.2
+// Renders PDFs in canvas mode to preserve original appearance and generates a navigation menu for TOC-based page jumping
 
 // Initialize PDF.js with CDN fallback to local files
 let pdfjsLib;
@@ -16,14 +16,12 @@ try {
 }
 
 // Application version for display in bottom-left corner
-const APP_VERSION = '1.2.1';
+const APP_VERSION = '1.2.2';
 
 // Global variables for PDF document and state
 let pdfDoc = null; // Holds the loaded PDF document
 let currentPage = 1; // Tracks the current page being viewed
-const scale = 2.0; // Canvas rendering scale for image-based PDFs
-let fullHtmlMode = false; // True if rendering as canvas (image-based PDFs)
-let htmlMode = false; // True if rendering as HTML (text-selectable PDFs)
+const scale = 2.0; // Canvas rendering scale for PDF pages
 
 // DOM elements for interaction
 const upload = document.getElementById('upload'); // File input for PDF upload
@@ -81,8 +79,9 @@ async function handleFileSelect(event) {
         nextBtn.addEventListener('click', () => goToPage(currentPage + 1));
         updatePageControls();
 
-        // Convert PDF to HTML or canvas and build menu
-        await convertPdfToHtml();
+        // Render PDF in canvas mode
+        await renderPdfCanvas();
+        // Build navigation menu
         await buildMenu(file.name);
     } catch (error) {
         // Handle loading errors (e.g., corrupt PDF, network issues)
@@ -92,59 +91,39 @@ async function handleFileSelect(event) {
     }
 }
 
-// Convert PDF to HTML (text-selectable) or canvas (image-based)
-async function convertPdfToHtml() {
+// Render PDF pages in canvas mode to preserve original appearance
+async function renderPdfCanvas() {
     const container = document.getElementById('documentContainer');
-    container.innerHTML = '<div id="loading">Converting PDF to HTML...</div>';
+    container.innerHTML = '<div id="loading">Rendering PDF...</div>';
 
     try {
-        // Check if PDF is text-selectable by sampling page 1
-        const samplePage = await pdfDoc.getPage(1);
-        const textContent = await samplePage.getTextContent();
-        if (textContent.items.length > 10) {
-            htmlMode = true;
-            console.log('Text-selectable PDF. Converting to HTML.');
-            for (let p = 1; p <= pdfDoc.numPages; p++) {
-                const page = await pdfDoc.getPage(p);
-                const textContent = await page.getTextContent();
-                const pageDiv = document.createElement('div');
-                pageDiv.id = `page-${p}`;
-                pageDiv.className = 'page-div';
-                pageDiv.innerHTML = `<h2>Page ${p}</h2><p>${textContent.items.map(item => item.str).join(' ')}</p>`;
-                container.appendChild(pageDiv);
-                console.log(`Converted page ${p} to HTML`);
-            }
-            container.querySelector('#loading').remove();
-        } else {
-            console.log('Image-based PDF. Using canvas mode.');
-            fullHtmlMode = true;
-            for (let p = 1; p <= pdfDoc.numPages; p++) {
-                const pageDiv = document.createElement('div');
-                pageDiv.id = `page-${p}`;
-                pageDiv.className = 'page-div';
-                const pageCanvas = document.createElement('canvas');
-                pageCanvas.id = `canvas-${p}`;
-                pageCanvas.style.border = '1px solid #ddd';
-                pageDiv.appendChild(pageCanvas);
-                const pageLabel = document.createElement('p');
-                pageLabel.textContent = `Page ${p}`;
-                pageLabel.style.textAlign = 'center';
-                pageDiv.appendChild(pageLabel);
-                container.appendChild(pageDiv);
+        console.log('Rendering PDF in canvas mode.');
+        for (let p = 1; p <= pdfDoc.numPages; p++) {
+            const pageDiv = document.createElement('div');
+            pageDiv.id = `page-${p}`;
+            pageDiv.className = 'page-div';
+            const pageCanvas = document.createElement('canvas');
+            pageCanvas.id = `canvas-${p}`;
+            pageCanvas.style.border = '1px solid #ddd';
+            pageDiv.appendChild(pageCanvas);
+            const pageLabel = document.createElement('p');
+            pageLabel.textContent = `Page ${p}`;
+            pageLabel.style.textAlign = 'center';
+            pageDiv.appendChild(pageLabel);
+            container.appendChild(pageDiv);
 
-                const page = await pdfDoc.getPage(p);
-                const viewport = page.getViewport({ scale });
-                const pageCtx = pageCanvas.getContext('2d');
-                pageCanvas.height = viewport.height;
-                pageCanvas.width = viewport.width;
-                await page.render({ canvasContext: pageCtx, viewport }).promise;
-                console.log(`Rendered canvas page ${p}`);
-            }
-            container.querySelector('#loading').remove();
+            const page = await pdfDoc.getPage(p);
+            const viewport = page.getViewport({ scale });
+            const pageCtx = pageCanvas.getContext('2d');
+            pageCanvas.height = viewport.height;
+            pageCanvas.width = viewport.width;
+            await page.render({ canvasContext: pageCtx, viewport }).promise;
+            console.log(`Rendered canvas page ${p}`);
         }
+        container.querySelector('#loading').remove();
     } catch (error) {
-        console.error('Conversion error:', error);
-        container.innerHTML = '<p>Conversion failed. Using basic view.</p>';
+        console.error('Rendering error:', error);
+        container.innerHTML = '<p>Rendering failed. Check console (F12).</p>';
     }
 }
 
@@ -177,11 +156,7 @@ async function buildMenu(filename) {
         const ul = document.createElement('ul');
         await buildOutlineRecursive(ul, outline);
         menuDiv.appendChild(ul);
-        return;
-    }
-
-    if (fullHtmlMode) {
-        menuDiv.innerHTML = '<p>Menu disabled in canvas mode. Use scroll.</p>';
+        console.log('Built menu from PDF outline');
         return;
     }
 
@@ -192,6 +167,7 @@ async function buildMenu(filename) {
 async function buildGeneralTocMenu() {
     if (!pdfDoc || pdfDoc.numPages < 5) {
         menuDiv.innerHTML = '<p>PDF too short for TOC.</p>';
+        console.log('PDF too short for TOC');
         return;
     }
 
@@ -206,8 +182,10 @@ async function buildGeneralTocMenu() {
             tocEntries.forEach(entry => entry.page += offset);
             const menuStructure = buildTocStructure(tocEntries);
             renderMenu(menuStructure);
+            console.log('Built TOC menu from page 4');
         } else {
             menuDiv.innerHTML = '<p>No TOC found. Use page controls.</p>';
+            console.log('No TOC found on page 4');
         }
     } catch (error) {
         console.error('TOC error:', error);
