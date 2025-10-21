@@ -1,4 +1,4 @@
-// PDF Navigator App Version: 1.2.3
+// PDF Navigator App Version: 1.2.4
 
 // Import PDF.js worker for module compatibility
 import * as pdfjsLib from 'https://unpkg.com/pdfjs-dist@5.4.296/build/pdf.min.mjs';
@@ -21,7 +21,7 @@ const pageInfo = document.getElementById('pageInfo');
 const versionDiv = document.getElementById('version');
 
 // Set version display
-versionDiv.textContent = 'Version: 1.2.3';
+versionDiv.textContent = 'Version: 1.2.4';
 
 // Handle file upload
 uploadInput.addEventListener('change', async (event) => {
@@ -46,8 +46,12 @@ uploadInput.addEventListener('change', async (event) => {
         // Render all pages
         await renderAllPages();
 
-        // Extract and display TOC
-        await displayTOC();
+        // Try to extract and display embedded TOC
+        const tocExtracted = await displayTOC();
+        if (!tocExtracted) {
+            // Fallback to OCR-based TOC detection
+            await detectTOCWithOCR();
+        }
 
         // Update page controls
         updatePageControls();
@@ -91,13 +95,12 @@ async function renderAllPages() {
     }
 }
 
-// Extract and display Table of Contents
+// Extract and display embedded Table of Contents
 async function displayTOC() {
     try {
         const outline = await pdfDoc.getOutline();
         if (!outline || outline.length === 0) {
-            menuDiv.innerHTML = '<div id="no-pdf">No Table of Contents available.</div>';
-            return;
+            return false; // No embedded TOC found
         }
 
         const ul = document.createElement('ul');
@@ -132,13 +135,88 @@ async function displayTOC() {
             ul.appendChild(li);
         });
         menuDiv.appendChild(ul);
+        return true; // TOC successfully extracted
     } catch (error) {
         console.error('Error extracting TOC:', error);
-        menuDiv.innerHTML = '<div id="no-pdf">Error loading TOC.</div>';
+        return false;
     }
 }
 
-// Navigate to a destination (TOC link)
+// Fallback: Detect TOC using Tesseract.js OCR
+async function detectTOCWithOCR() {
+    try {
+        menuDiv.innerHTML = '<div id="loading">Scanning for TOC...</div>';
+        const numPagesToScan = Math.min(pdfDoc.numPages, 10); // Scan up to 10 pages
+        let tocItems = [];
+
+        for (let pageNum = 1; pageNum <= numPagesToScan; pageNum++) {
+            const page = await pdfDoc.getPage(pageNum);
+            const viewport = page.getViewport({ scale: 2.0 }); // Higher scale for better OCR
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            // Render page to canvas for OCR
+            await page.render({
+                canvasContext: context,
+                viewport: viewport
+            }).promise;
+
+            // Perform OCR using Tesseract.js
+            const { data: { text } } = await Tesseract.recognize(canvas, 'eng', {
+                logger: (m) => console.log(m) // Optional: log OCR progress
+            });
+
+            // Simple TOC detection: look for lines with text followed by a number
+            const lines = text.split('\n').map(line => line.trim()).filter(line => line);
+            lines.forEach(line => {
+                const match = line.match(/^(.+?)\s+(\d+)$/); // E.g., "Section Title 5"
+                if (match) {
+                    const title = match[1].trim();
+                    const page = parseInt(match[2], 10);
+                    if (page > 0 && page <= pdfDoc.numPages) {
+                        tocItems.push({ title, page });
+                    }
+                }
+            });
+
+            // Clean up canvas
+            canvas.remove();
+        }
+
+        if (tocItems.length > 0) {
+            // Create menu from detected TOC items
+            const ul = document.createElement('ul');
+            tocItems.forEach(item => {
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.textContent = item.title;
+                a.href = '#';
+                a.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    currentPage = item.page;
+                    const pageDiv = document.getElementById(`page-${currentPage}`);
+                    if (pageDiv) {
+                        pageDiv.scrollIntoView({ behavior: 'smooth' });
+                        updatePageControls();
+                    }
+                });
+                li.appendChild(a);
+                ul.appendChild(li);
+            });
+            menuDiv.innerHTML = '';
+            menuDiv.appendChild(ul);
+        } else {
+            menuDiv.innerHTML = '<div id="no-pdf">No TOC found. Use page controls.</div>';
+        }
+    } catch (error) {
+        console.error('Error during OCR TOC detection:', error);
+        menuDiv.innerHTML = '<div id="no-pdf">No TOC found. Use page controls.</div>';
+    }
+}
+
+// Navigate to a destination (embedded TOC link)
 async function navigateToDest(dest) {
     if (!dest) return;
     try {
