@@ -1,0 +1,121 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#version {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    font-size: 0.8em;
+    color: #666;
+    font-weight: bold;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 5px 10px;
+    border-radius: 3px;
+}
+
+#sidebar {
+    width: 250px;
+    background-color: #f4f4f4;
+    padding: 10px;
+    overflow-y: auto;
+    border-right: 1px solid #ddd;
+    flex-shrink: 0;
+}
+
+#menu ul {
+    list-style-type: none;
+    padding-left: 20px;
+    margin: 0;
+}
+
+#menu a {
+    color: #007bff;
+    text-decoration: none;
+    cursor: pointer;
+    display: block;
+    padding: 5px 0;
+}
+
+#menu a:hover {
+    text-decoration: underline;
+}
+
+#viewer {
+    flex: 1;
+    background-color: #fff;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#documentContainer {
+    width: 100%;
+    max-width: 1200px;
+}
+
+.page-div {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    width: 100%;
+    text-align: center;
+}
+
+.page-div h2 {
+    color: #007bff;
+    margin: 10px 0;
+}
+
+.page-div canvas {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+}
+
+#pageControls {
+    position: sticky;
+    bottom: 10px;
+    background: white;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+#pageInfo {
+    margin: 0 10px;
+    font-weight: bold;
+}
+
+button {
+    padding: 5px 15px;
+    cursor: pointer;
+}
+
+#upload {
+    margin-bottom: 10px;
+    display: block;
+    width: 100%;
+}
+
+#no-pdf, #loading {
+    text-align: center;
+    color: #666;
+    margin: 10px 0;
+}
+
+#loading {
+    color: #007bff;
+}

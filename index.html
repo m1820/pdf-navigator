@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Navigator App</title>
+    <script type="module" src="https://unpkg.com/pdfjs-dist@5.4.296/build/pdf.min.mjs"></script>
+    <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="version"></div>
+    <div id="sidebar">
+        <input type="file" id="upload" accept=".pdf">
+        <div id="menu">
+            <div id="no-pdf">Upload a PDF to begin</div>
+        </div>
+    </div>
+    <div id="viewer">
+        <div id="documentContainer"></div>
+        <div id="pageControls">
+            <button id="prevBtn" disabled>Previous</button>
+            <span id="pageInfo">Page 0 of 0</span>
+            <button id="nextBtn" disabled>Next</button>
+        </div>
+    </div>
+    <script type="module" src="js/script.js"></script>
+</body>
+</html>
